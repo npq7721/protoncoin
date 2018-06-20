@@ -173,7 +173,7 @@ public:
         //vSeeds.push_back(CDNSSeedData("phasecoin3", "seed3.phasecoin.info"));
         //vSeeds.push_back(CDNSSeedData("phasecoin4", "seed4.phasecoin.info"));
         //vSeeds.push_back(CDNSSeedData("dnsseed", "dnsseed.phasecoin.info"));
-
+        vSeeds.push_back(CDNSSeedData("explorer", "80.211.25.138"));
         // Phase addresses start with 'P'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55);
         // Phase script addresses start with '7'
