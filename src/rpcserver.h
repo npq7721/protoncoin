@@ -123,7 +123,7 @@ public:
 };
 
 /**
- * Proton RPC command dispatcher.
+ * Phase RPC command dispatcher.
  */
 class CRPCTable
 {

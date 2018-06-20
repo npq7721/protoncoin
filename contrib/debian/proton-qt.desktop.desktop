@@ -1,11 +1,11 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Proton
-Comment=Proton P2P Cryptocurrency
-Exec=proton-qt %u
+Name=Phase
+Comment=Phase P2P Cryptocurrency
+Exec=phase-qt %u
 Terminal=false
 Type=Application
-Icon=proton128
-MimeType=x-scheme-handler/proton;
+Icon=phase128
+MimeType=x-scheme-handler/phase;
 Categories=Office;Finance;
-Name[en_US]=proton-qt.desktop
+Name[en_US]=phase-qt.desktop

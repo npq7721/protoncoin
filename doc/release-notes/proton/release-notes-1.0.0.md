@@ -1,13 +1,13 @@
 1.0.0 Release notes
 ====================
 
-Proton Core version 1.0.0 is now available from:
+Phase Core version 1.0.0 is now available from:
 
-  https://protoncoin.io/downloads
+  https://phasecoin.io/downloads
 
 Please report bugs using the issue tracker at github:
 
-  https://github.com/protoncoin/proton/issues
+  https://github.com/phasecoin/phase/issues
 
 
 How to Upgrade
@@ -15,8 +15,8 @@ How to Upgrade
 
 If you are running an older version, shut it down. Wait until it has completely
 shut down (which might take a few minutes for older versions), then run the
-installer (on Windows) or just copy over /Applications/Proton-Qt (on Mac) or
-protond/proton-qt (on Linux).
+installer (on Windows) or just copy over /Applications/Phase-Qt (on Mac) or
+phased/phase-qt (on Linux).
 
 **This new version uses transaction indexing by default, you will need to reindex 
 the blockchain. To do so, start the client with --reindex.**
@@ -32,6 +32,6 @@ Credits
 
 Thanks to who contributed to this release, at least:
 
-protoncoingroup
+phasecoingroup
 
-As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/proton/).
+As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/phase/).

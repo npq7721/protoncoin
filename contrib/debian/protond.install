@@ -1,2 +1,2 @@
-usr/local/bin/protond usr/bin
-usr/local/bin/proton-cli usr/bin
+usr/local/bin/phased usr/bin
+usr/local/bin/phase-cli usr/bin

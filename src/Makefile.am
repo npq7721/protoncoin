@@ -55,15 +55,15 @@ TESTS =
 BENCHMARKS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += protond
+  bin_PROGRAMS += phased
 endif
 
 if BUILD_BITCOIN_UTILS
-  bin_PROGRAMS += proton-cli proton-tx
+  bin_PROGRAMS += phase-cli phase-tx
 endif
 
 .PHONY: FORCE check-symbols check-security
-# proton core #
+# phase core #
 BITCOIN_CORE_H = \
   activemasternode.h \
   addressindex.h \
@@ -107,6 +107,8 @@ BITCOIN_CORE_H = \
   governance-votedb.h \
   flat-database.h \
   hash.h \
+  trihash.h \
+  hashSelection.h \
   httprpc.h \
   httpserver.h \
   init.h \
@@ -117,6 +119,7 @@ BITCOIN_CORE_H = \
   dbwrapper.h \
   limitedmap.h \
   main.h \
+  masternode-level.h \
   masternode.h \
   masternode-payments.h \
   masternode-sync.h \
@@ -191,7 +194,7 @@ obj/build.h: FORCE
 	  $(abs_top_srcdir)
 libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
 
-# server: shared between protond and proton-qt
+# server: shared between phased and phase-qt
 libbitcoin_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libbitcoin_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_server_a_SOURCES = \
@@ -249,7 +252,7 @@ libbitcoin_zmq_a_SOURCES = \
 endif
 
 
-# wallet: shared between protond and proton-qt, but only linked
+# wallet: shared between phased and phase-qt, but only linked
 # when wallet enabled
 libbitcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -259,6 +262,7 @@ libbitcoin_wallet_a_SOURCES = \
   dsnotificationinterface.cpp \
   darksend-relay.cpp \
   instantx.cpp \
+  masternode-level.cpp \
   masternode.cpp \
   masternode-payments.cpp \
   masternode-sync.cpp \
@@ -302,6 +306,7 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/simd.c \
   crypto/skein.c \
   crypto/neoscrypt.c \
+  crypto/haval.c \
   crypto/sph_hamsi.c \
   crypto/sph_hamsi_helper.c \
   crypto/sph_fugue.c \
@@ -333,12 +338,13 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sph_shabal.h \
   crypto/sph_whirlpool.h \
   crypto/sph_sha2.h \
+  crypto/sph_haval.h \
   crypto/sph_types.h \
   crypto/ctaes/ctaes.h \
   crypto/sha512.cpp \
   crypto/sha512.h
 
-# common: shared between protond, and proton-qt and non-server tools
+# common: shared between phased, and phase-qt and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_common_a_SOURCES = \
@@ -352,6 +358,8 @@ libbitcoin_common_a_SOURCES = \
   core_read.cpp \
   core_write.cpp \
   hash.cpp \
+  trihash.cpp \
+  hashSelection.cpp \
   key.cpp \
   keystore.cpp \
   netbase.cpp \
@@ -395,7 +403,7 @@ if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
 endif
 
-# cli: shared between proton-cli and proton-qt
+# cli: shared between phase-cli and phase-qt
 libbitcoin_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_cli_a_SOURCES = \
@@ -406,16 +414,16 @@ nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
 # bitcoind binary #
-protond_SOURCES = protond.cpp
-protond_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-protond_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-protond_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+phased_SOURCES = phased.cpp
+phased_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+phased_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+phased_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-protond_SOURCES += protond-res.rc
+phased_SOURCES += phased-res.rc
 endif
 
-protond_LDADD = \
+phased_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBUNIVALUE) \
@@ -426,50 +434,50 @@ protond_LDADD = \
   $(LIBSECP256K1)
 
 if ENABLE_ZMQ
-protond_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
+phased_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_WALLET
-protond_LDADD += libbitcoin_wallet.a
+phased_LDADD += libbitcoin_wallet.a
 endif
 
-protond_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
+phased_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
 
-# proton-cli binary #
-proton_cli_SOURCES = proton-cli.cpp
-proton_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
-proton_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-proton_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# phase-cli binary #
+phase_cli_SOURCES = phase-cli.cpp
+phase_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
+phase_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+phase_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-proton_cli_SOURCES += proton-cli-res.rc
+phase_cli_SOURCES += phase-cli-res.rc
 endif
 
-proton_cli_LDADD = \
+phase_cli_LDADD = \
   $(LIBBITCOIN_CLI) \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_UTIL)
-proton_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
+phase_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS)
 #
 
-# proton-tx binary #
-proton_tx_SOURCES = proton-tx.cpp
-proton_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-proton_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-proton_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+# phase-tx binary #
+phase_tx_SOURCES = phase-tx.cpp
+phase_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+phase_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+phase_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-proton_tx_SOURCES += proton-tx-res.rc
+phase_tx_SOURCES += phase-tx-res.rc
 endif
 
-proton_tx_LDADD = \
+phase_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-proton_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+phase_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
 # bitcoinconsensus library #

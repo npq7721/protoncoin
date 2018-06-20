@@ -1,8 +1,8 @@
-// Copyright (c) 2014-2018 The Proton Core developers
+// Copyright (c) 2014-2018 The Phase Core developers
 
 #include "governance.h"
 
-#include "test/test_proton.h"
+#include "test/test_phase.h"
 
 #include <boost/test/unit_test.hpp>
 

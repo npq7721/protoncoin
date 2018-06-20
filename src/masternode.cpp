@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2017 The Dash Core developers
-// Copyright (c) 2017-2018 The Proton Core developers
+// Copyright (c) 2017-2018 The Phase Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -625,9 +625,10 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
             return false;
         }
-
-        if(coins.vout[vin.prevout.n].nValue != 5000 * COIN) {
-            LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have 5000 PROTON, masternode=%s\n", vin.prevout.ToStringShort());
+        const int height = chainActive.Height();
+        const CAmount collateral = coins.vout[vin.prevout.n].nValue/COIN;
+        if(!isValidMasternode(collateral, height)) {
+            LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have %"PRId64" PHASE, masternode=%s\n", collateral, vin.prevout.ToStringShort());
             return false;
         }
 
@@ -651,7 +652,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
     }
 
     // verify that sig time is legit in past
-    // should be at least not earlier than block when 5000 PROTON tx got nMasternodeMinimumConfirmations
+    // should be at least not earlier than block when MN_COLLATERAL PHASE tx got nMasternodeMinimumConfirmations
     uint256 hashBlock = uint256();
     CTransaction tx2;
     GetTransaction(vin.prevout.hash, tx2, Params().GetConsensus(), hashBlock, true);
@@ -659,7 +660,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
         LOCK(cs_main);
         BlockMap::iterator mi = mapBlockIndex.find(hashBlock);
         if (mi != mapBlockIndex.end() && (*mi).second) {
-            CBlockIndex* pMNIndex = (*mi).second; // block for 5000 PROTON tx -> 1 confirmation
+            CBlockIndex* pMNIndex = (*mi).second; // block for MN_COLLATERAL PHASE tx -> 1 confirmation
             CBlockIndex* pConfIndex = chainActive[pMNIndex->nHeight + Params().GetConsensus().nMasternodeMinimumConfirmations - 1]; // block where tx got nMasternodeMinimumConfirmations
             if(pConfIndex->GetBlockTime() > sigTime) {
                 LogPrintf("CMasternodeBroadcast::CheckOutpoint -- Bad sigTime %d (%d conf block is at %d) for Masternode %s %s\n",

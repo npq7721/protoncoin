@@ -1,6 +1,6 @@
 // Copyright (c) 2011-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2017 The Dash Core developers
-// Copyright (c) 2017-2018 The Proton Core developers
+// Copyright (c) 2017-2018 The Phase Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -20,9 +20,9 @@ BitcoinUnits::BitcoinUnits(QObject *parent):
 QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 {
     QList<BitcoinUnits::Unit> unitlist;
-    unitlist.append(PROTON);
-    unitlist.append(mPROTON);
-    unitlist.append(uPROTON);
+    unitlist.append(PHASE);
+    unitlist.append(mPHASE);
+    unitlist.append(uPHASE);
     unitlist.append(duffs);
     return unitlist;
 }
@@ -31,9 +31,9 @@ bool BitcoinUnits::valid(int unit)
 {
     switch(unit)
     {
-    case PROTON:
-    case mPROTON:
-    case uPROTON:
+    case PHASE:
+    case mPHASE:
+    case uPHASE:
     case duffs:
         return true;
     default:
@@ -47,9 +47,9 @@ QString BitcoinUnits::name(int unit)
     {
         switch(unit)
         {
-            case PROTON: return QString("PROTON");
-            case mPROTON: return QString("mPROTON");
-            case uPROTON: return QString::fromUtf8("μPROTON");
+            case PHASE: return QString("PHASE");
+            case mPHASE: return QString("mPHASE");
+            case uPHASE: return QString::fromUtf8("μPHASE");
             case duffs: return QString("duffs");
             default: return QString("???");
         }
@@ -58,9 +58,9 @@ QString BitcoinUnits::name(int unit)
     {
         switch(unit)
         {
-            case PROTON: return QString("tPROTON");
-            case mPROTON: return QString("mtPROTON");
-            case uPROTON: return QString::fromUtf8("μtPROTON");
+            case PHASE: return QString("tPHASE");
+            case mPHASE: return QString("mtPHASE");
+            case uPHASE: return QString::fromUtf8("μtPHASE");
             case duffs: return QString("tduffs");
             default: return QString("???");
         }
@@ -73,10 +73,10 @@ QString BitcoinUnits::description(int unit)
     {
         switch(unit)
         {
-            case PROTON: return QString("Proton");
-            case mPROTON: return QString("Milli-Proton (1 / 1" THIN_SP_UTF8 "000)");
-            case uPROTON: return QString("Micro-Proton (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-            case duffs: return QString("Ten Nano-Proton (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+            case PHASE: return QString("Phase");
+            case mPHASE: return QString("Milli-Phase (1 / 1" THIN_SP_UTF8 "000)");
+            case uPHASE: return QString("Micro-Phase (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+            case duffs: return QString("Ten Nano-Phase (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
             default: return QString("???");
         }
     }
@@ -84,10 +84,10 @@ QString BitcoinUnits::description(int unit)
     {
         switch(unit)
         {
-            case PROTON: return QString("TestProtons");
-            case mPROTON: return QString("Milli-TestProton (1 / 1" THIN_SP_UTF8 "000)");
-            case uPROTON: return QString("Micro-TestProton (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-            case duffs: return QString("Ten Nano-TestProton (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+            case PHASE: return QString("TestPhases");
+            case mPHASE: return QString("Milli-TestPhase (1 / 1" THIN_SP_UTF8 "000)");
+            case uPHASE: return QString("Micro-TestPhase (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+            case duffs: return QString("Ten Nano-TestPhase (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
             default: return QString("???");
         }
     }
@@ -97,9 +97,9 @@ qint64 BitcoinUnits::factor(int unit)
 {
     switch(unit)
     {
-    case PROTON:  return 100000000;
-    case mPROTON: return 100000;
-    case uPROTON: return 100;
+    case PHASE:  return 100000000;
+    case mPHASE: return 100000;
+    case uPHASE: return 100;
     case duffs: return 1;
     default:   return 100000000;
     }
@@ -109,9 +109,9 @@ int BitcoinUnits::decimals(int unit)
 {
     switch(unit)
     {
-    case PROTON: return 8;
-    case mPROTON: return 5;
-    case uPROTON: return 2;
+    case PHASE: return 8;
+    case mPHASE: return 5;
+    case uPHASE: return 2;
     case duffs: return 0;
     default: return 0;
     }

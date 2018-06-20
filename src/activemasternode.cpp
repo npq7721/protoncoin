@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2018 The Proton Core developers
+// Copyright (c) 2014-2018 The Phase Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -208,9 +208,9 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet is locked\n", GetStateString());
         return;
     }
-
-    if(pwalletMain->GetBalance() < 5000*COIN) {
-        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 5000 PROTON\n", GetStateString());
+    CAmount minCollateral = getMinimumCollateral(chainActive.Height());
+    if(pwalletMain->GetBalance() < minCollateral*COIN) {
+        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < %"PRId64" PHASE\n", GetStateString(), minCollateral);
         return;
     }
 

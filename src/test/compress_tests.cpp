@@ -4,7 +4,7 @@
 
 #include "compressor.h"
 #include "util.h"
-#include "test/test_proton.h"
+#include "test/test_phase.h"
 
 #include <stdint.h>
 

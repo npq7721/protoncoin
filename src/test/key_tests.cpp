@@ -9,7 +9,7 @@
 #include "uint256.h"
 #include "util.h"
 #include "utilstrencodings.h"
-#include "test/test_proton.h"
+#include "test/test_phase.h"
 
 #include <string>
 #include <vector>

@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include "addrman.h"
-#include "test/test_proton.h"
+#include "test/test_phase.h"
 #include <string>
 #include <boost/test/unit_test.hpp>
 

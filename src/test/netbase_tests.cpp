@@ -1,10 +1,10 @@
 // Copyright (c) 2012-2015 The Bitcoin Core developers
-// Copyright (c) 2014-2018 The Proton Core developers
+// Copyright (c) 2014-2018 The Phase Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "netbase.h"
-#include "test/test_proton.h"
+#include "test/test_phase.h"
 
 #include <string>
 

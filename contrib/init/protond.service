@@ -1,15 +1,15 @@
 [Unit]
-Description=Proton's distributed currency daemon
+Description=Phase's distributed currency daemon
 After=network.target
 
 [Service]
-User=protoncore
-Group=protoncore
+User=phasecore
+Group=phasecore
 
 Type=forking
-PIDFile=/var/lib/protond/protond.pid
-ExecStart=/usr/bin/protond -daemon -pid=/var/lib/protond/protond.pid \
--conf=/etc/protoncore/proton.conf -datadir=/var/lib/protond -disablewallet
+PIDFile=/var/lib/phased/phased.pid
+ExecStart=/usr/bin/phased -daemon -pid=/var/lib/phased/phased.pid \
+-conf=/etc/phasecore/phase.conf -datadir=/var/lib/phased -disablewallet
 
 Restart=always
 PrivateTmp=true

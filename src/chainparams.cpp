@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin Core developers
-// Copyright (c) 2014-2018 The Proton Core developers
+// Copyright (c) 2014-2018 The Phase Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,6 +10,7 @@
 #include "tinyformat.h"
 #include "util.h"
 #include "utilstrencodings.h"
+#include "arith_uint256.h"
 
 #include <assert.h>
 
@@ -45,9 +46,48 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  */
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
-    const char* pszTimestamp = "Proton coin will start 25 Dec 2017";
+    //const char* pszTimestamp = "Phase coin will start 25 Dec 2017";
+	const char* pszTimestamp = "Phase coin will fork on July 1st 2018";
     const CScript genesisOutputScript = CScript() << ParseHex("040a3ada5ba6280b99f49a92ba47221e6a72af844ec49d0c8bbdae1ec09a4c79b22e42eefe670ae04490556f91780eb57de76493d020c91d0c421c2fa052b28a2b") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
+}
+
+void CChainParams::printGenesisBlock() {
+	consensus.hashGenesisBlock = uint256S("0x");
+	std::cout << std::string("Begin calculating Mainnet Genesis Block:\n");
+	if (true && (genesis.GetHash() != consensus.hashGenesisBlock)) {
+	LogPrintf("Calculating Mainnet Genesis Block:\n");
+	arith_uint256 hashTarget = arith_uint256().SetCompact(genesis.nBits);
+	uint256 hash;
+	genesis.nNonce = 0;
+	// This will figure out a valid hash and Nonce if you're
+	// creating a different genesis block:
+	// uint256 hashTarget = CBigNum().SetCompact(genesis.nBits).getuint256();
+	// hashTarget.SetCompact(genesis.nBits, &fNegative, &fOverflow).getuint256();
+	// while (genesis.GetHash() > hashTarget)
+	while (UintToArith256(genesis.GetHash()) > hashTarget)
+	{
+		++genesis.nNonce;
+		if (genesis.nNonce == 0)
+		{
+			LogPrintf("NONCE WRAPPED, incrementing time");
+			std::cout << std::string("NONCE WRAPPED, incrementing time:\n");
+			++genesis.nTime;
+		}
+		if (genesis.nNonce % 10000 == 0)
+		{
+			LogPrintf("Mainnet: nonce %08u: hash = %s \n", genesis.nNonce, genesis.GetHash().ToString().c_str());
+			// std::cout << strNetworkID << " nonce: " << genesis.nNonce << " time: " << genesis.nTime << " hash: " << genesis.GetHash().ToString().c_str() << "\n";
+		}
+	}
+	std::cout << "Mainnet ---\n";
+	std::cout << "  nonce: " << genesis.nNonce <<  "\n";
+	std::cout << "   time: " << genesis.nTime << "\n";
+	std::cout << "   hash: " << genesis.GetHash().ToString().c_str() << "\n";
+	std::cout << "   merklehash: "  << genesis.hashMerkleRoot.ToString().c_str() << "\n";
+	// Mainnet --- nonce: 296277 time: 1390095618 hash: 000000bdd771b14e5a031806292305e563956ce2584278de414d9965f6ab54b0
+	}
+	std::cout << std::string("Finished calculating Mainnet Genesis Block:\n");
 }
 
 /**
@@ -84,8 +124,8 @@ public:
         consensus.BIP34Height = 227931; // FIX
         consensus.BIP34Hash = uint256S("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8"); // FIX
         consensus.powLimit = uint256S("00000fffff000000000000000000000000000000000000000000000000000000");
-        consensus.nPowTargetTimespan = 2 * 2 * 60; // Proton: 1 hour, 2 blocks
-        consensus.nPowTargetSpacing = 2 * 60; // Proton: 2 minutes
+        consensus.nPowTargetTimespan = 2 * 2 * 60; // Phase: 1 hour, 2 blocks
+        consensus.nPowTargetSpacing = 2 * 60; // Phase: 2 minutes
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
@@ -114,38 +154,42 @@ public:
         pchMessageStart[2] = 0x9c;
         pchMessageStart[3] = 0xd5;
         vAlertPubKey = ParseHex("044513449073a8efe161dc42e7c07c61c4a8f59297dc8ebacbc2f77345084d058399022bc6a0db0719739f183d14b04893fb78c3b9bd9a3f88ecf8ea06adae99fe");
-        nDefaultPort = 17817;
+        //nDefaultPort = 17817;
+        nDefaultPort = 16817;
         nMaxTipAge = 1.5 * 60 * 60; // ~36 blocks behind -> 2 x fork detection time, was 24 * 60 * 60 in bitcoin
         nPruneAfterHeight = 100000;
 
-        genesis = CreateGenesisBlock(1514160000, 1648566, 0x1e0ffff0, 1, 50 * COIN);
-        
+        //genesis = CreateGenesisBlock(1514160000, 1648566, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1529459169, 1030950, 0x1e0ffff0, 1, 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000e1728b630fd83aecbc51546c7915fffb7d3c897b5fd8c4b14043070b7f0"));
-        assert(genesis.hashMerkleRoot == uint256S("0x33a98e8f8089165dc24358b01d52dd740011bdbffad052d51d3ac3588af2f487"));
+        //printGenesisBlock();
+        assert(consensus.hashGenesisBlock == uint256S("0x00000cd0402a1b9b352d357e13b6495c1e48445a6f6e044c9d59f7f16b6b2d43"));
+        assert(genesis.hashMerkleRoot == uint256S("0xb010d56d0c81c5c4b552c8745136d75e83b449926ba9bfbfc4259e1e7a67b198"));
+       // assert(consensus.hashGenesisBlock == uint256S("0x00000e1728b630fd83aecbc51546c7915fffb7d3c897b5fd8c4b14043070b7f0"));
+       // assert(genesis.hashMerkleRoot == uint256S("0x33a98e8f8089165dc24358b01d52dd740011bdbffad052d51d3ac3588af2f487"));
 
-      //  vSeeds.push_back(CDNSSeedData("protoncoin1", "seed1.protoncoin.info"));
-       // vSeeds.push_back(CDNSSeedData("protoncoin2", "seed2.protoncoin.info"));
-       // vSeeds.push_back(CDNSSeedData("protoncoin3", "seed3.protoncoin.info"));
-       // vSeeds.push_back(CDNSSeedData("protoncoin4", "seed4.protoncoin.info"));
-       // vSeeds.push_back(CDNSSeedData("dnsseed", "dnsseed.protoncoin.info"));
+        //vSeeds.push_back(CDNSSeedData("phasecoin1", "seed1.phasecoin.info"));
+        //vSeeds.push_back(CDNSSeedData("phasecoin2", "seed2.phasecoin.info"));
+        //vSeeds.push_back(CDNSSeedData("phasecoin3", "seed3.phasecoin.info"));
+        //vSeeds.push_back(CDNSSeedData("phasecoin4", "seed4.phasecoin.info"));
+        //vSeeds.push_back(CDNSSeedData("dnsseed", "dnsseed.phasecoin.info"));
 
-        // Proton addresses start with 'P'
+        // Phase addresses start with 'P'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55);
-        // Proton script addresses start with '7'
+        // Phase script addresses start with '7'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,15);
-        // Proton private keys start with '7' or 'P' (?)
+        // Phase private keys start with '7' or 'P' (?)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,192);
-        // Proton BIP32 pubkeys start with 'xpub' (Bitcoin defaults)
+        // Phase BIP32 pubkeys start with 'xpub' (Bitcoin defaults)
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
-        // Proton BIP32 prvkeys start with 'xprv' (Bitcoin defaults)
+        // Phase BIP32 prvkeys start with 'xprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
-        // Proton BIP44 coin type is '5'
+        // Phase BIP44 coin type is '5'
         base58Prefixes[EXT_COIN_TYPE]  = boost::assign::list_of(0x80)(0x00)(0x00)(0x05).convert_to_container<std::vector<unsigned char> >();
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
@@ -156,7 +200,7 @@ public:
         strSporkPubKey = "04d9491a6cf40a2afaf51de3939eadca259a95843b637f82c772a5719bc64051409031803a1c33f1f9b14c24a2d6937fe5b76ffa99a9730aa27726f9934cabf7f4";
         strMasternodePaymentsPubKey = "041fda8a1eff0a55d4d5c2d10f426e9c204d8faa228e3bbbaccd716a0db59bbfbe15dc17975f41e554ad551316b97586ddf5bec909a9fc3fc36c17a9611294fcf8";
 
-        checkpointData = (CCheckpointData) {
+     /*   checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
             (    0, uint256S("0x00000e1728b630fd83aecbc51546c7915fffb7d3c897b5fd8c4b14043070b7f0"))
             ( 1000, uint256S("0x00000040520462647ef6997ab360d95af29e5288d8bc393643357f8ff433c366"))
@@ -169,7 +213,15 @@ public:
             10020,      // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             2800        // * estimated number of transactions per day after checkpoint
-        };
+        };*/
+        checkpointData = (CCheckpointData) {
+			boost::assign::map_list_of
+			(    0, uint256S("0x00000cd0402a1b9b352d357e13b6495c1e48445a6f6e044c9d59f7f16b6b2d43")),
+			1529459169, // * UNIX timestamp of last checkpoint block
+			0,      // * total number of transactions between genesis and last checkpoint
+						//   (the tx=... number in the SetBestChain debug.log lines)
+			500        // * estimated number of transactions per day after checkpoint
+		};
     }
 };
 static CMainParams mainParams;
@@ -201,8 +253,8 @@ public:
         consensus.BIP34Height = 21111; // FIX
         consensus.BIP34Hash = uint256S("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8"); // FIX
         consensus.powLimit = uint256S("00000fffff000000000000000000000000000000000000000000000000000000");
-        consensus.nPowTargetTimespan = 60 * 60; // Proton: 1 hour
-        consensus.nPowTargetSpacing = 2 * 60; // Proton: 2 minutes
+        consensus.nPowTargetTimespan = 60 * 60; // Phase: 1 hour
+        consensus.nPowTargetSpacing = 2 * 60; // Phase: 2 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
@@ -225,26 +277,30 @@ public:
         nMaxTipAge = 0x7fffffff; // allow mining on top of old blocks for testnet
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1513728000, 21635, 0x1e0ffff0, 1, 50 * COIN);
+        //genesis = CreateGenesisBlock(1513728000, 21635, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1529459069, 335181, 0x1e0ffff0, 1, 50 * COIN);
+		consensus.hashGenesisBlock = genesis.GetHash();
+		//printGenesisBlock();
+		 assert(consensus.hashGenesisBlock == uint256S("0x00000c133e316ba791ae6c34a1858da44bc5bc2cacf51766f3ddb2ff5851ceb6"));
+		assert(genesis.hashMerkleRoot == uint256S("0xb010d56d0c81c5c4b552c8745136d75e83b449926ba9bfbfc4259e1e7a67b198"));
 
-        consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0000000f350d9039575f6446584f4ae4317bed76aae26ef1f2381ff73f7cd68d"));
-        assert(genesis.hashMerkleRoot == uint256S("0x33a98e8f8089165dc24358b01d52dd740011bdbffad052d51d3ac3588af2f487"));
+        //assert(consensus.hashGenesisBlock == uint256S("0x0000000f350d9039575f6446584f4ae4317bed76aae26ef1f2381ff73f7cd68d"));
+       // assert(genesis.hashMerkleRoot == uint256S("0x33a98e8f8089165dc24358b01d52dd740011bdbffad052d51d3ac3588af2f487"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        // Testnet Proton addresses start with 'n'
+        // Testnet Phase addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
-        // Testnet Proton script addresses start with '5'
+        // Testnet Phase script addresses start with '5'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,10);
         // Testnet private keys start with '5' or 'n' (Bitcoin defaults) (?)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,240);
-        // Testnet Proton BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
+        // Testnet Phase BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x35)(0x87)(0xCF).convert_to_container<std::vector<unsigned char> >();
-        // Testnet Proton BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
+        // Testnet Phase BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x35)(0x83)(0x94).convert_to_container<std::vector<unsigned char> >();
-        // Testnet Proton BIP44 coin type is '1' (All coin's testnet default)
+        // Testnet Phase BIP44 coin type is '1' (All coin's testnet default)
         base58Prefixes[EXT_COIN_TYPE]  = boost::assign::list_of(0x80)(0x00)(0x00)(0x01).convert_to_container<std::vector<unsigned char> >();
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
@@ -259,7 +315,7 @@ public:
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
         strSporkPubKey = "04bd429fcefdd9775510ebb36e824e8184659c72fdc09e4083f129b5de2971032941a43e1114c0da68ece23d5e60dc830fa40b525fb64c2447ed411b4830531a92";
         strMasternodePaymentsPubKey = "04640195cd018340f4782744b2937099ad224624471076f40a9b1b1b14b908b3690577f4ecb585ce004e378184715d1a3d6bdba0a65a9802535a2c014cc49f7ea6";
-
+        /*
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
             ( 0, uint256S("0x000005e8d240378921a0c3e84933ed2059ab1375304809a33884a86c6d8bf38c")),
@@ -267,7 +323,7 @@ public:
             0,          // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             500	        // * estimated number of transactions per day after checkpoint
-        };
+        };*/
 
     }
 };
@@ -300,8 +356,8 @@ public:
         consensus.BIP34Height = -1; // BIP34 has not necessarily activated on regtest
         consensus.BIP34Hash = uint256();
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 60 * 60; // Proton: 1 hour
-        consensus.nPowTargetSpacing = 2 * 60; // Proton: 2 minutes
+        consensus.nPowTargetTimespan = 60 * 60; // Phase: 1 hour
+        consensus.nPowTargetSpacing = 2 * 60; // Phase: 2 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
@@ -324,8 +380,8 @@ public:
         genesis = CreateGenesisBlock(1513814400, 3, 0x207fffff, 1, 50 * COIN);
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x5a2bd287d108e8ae36227683cc9f47c4ed4b93a19b29684dec3b1a7189248eb4"));
-        assert(genesis.hashMerkleRoot == uint256S("0x33a98e8f8089165dc24358b01d52dd740011bdbffad052d51d3ac3588af2f487"));
+        //assert(consensus.hashGenesisBlock == uint256S("0x5a2bd287d108e8ae36227683cc9f47c4ed4b93a19b29684dec3b1a7189248eb4"));
+        //assert(genesis.hashMerkleRoot == uint256S("0x33a98e8f8089165dc24358b01d52dd740011bdbffad052d51d3ac3588af2f487"));
 
         vFixedSeeds.clear(); //! Regtest mode doesn't have any fixed seeds.
         vSeeds.clear();  //! Regtest mode doesn't have any DNS seeds.
@@ -345,17 +401,17 @@ public:
             0,
             0
         };
-        // Regtest Proton addresses start with 'n'
+        // Regtest Phase addresses start with 'n'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,112);
-        // Regtest Proton script addresses start with '5'
+        // Regtest Phase script addresses start with '5'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,10);
         // Regtest private keys start with '5' or 'c' (Bitcoin defaults) (?)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,240);
-        // Regtest Proton BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
+        // Regtest Phase BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x35)(0x87)(0xCF).convert_to_container<std::vector<unsigned char> >();
-        // Regtest Proton BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
+        // Regtest Phase BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x35)(0x83)(0x94).convert_to_container<std::vector<unsigned char> >();
-        // Regtest Proton BIP44 coin type is '1' (All coin's testnet default)
+        // Regtest Phase BIP44 coin type is '1' (All coin's testnet default)
         base58Prefixes[EXT_COIN_TYPE]  = boost::assign::list_of(0x80)(0x00)(0x00)(0x01).convert_to_container<std::vector<unsigned char> >();
    }
 };

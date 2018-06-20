@@ -1,9 +1,9 @@
 # Linearize
 Construct a linear, no-fork, best version of the blockchain.
 
-## Step 0: Install proton_hash
+## Step 0: Install phase_hash
 
-https://github.com/protoncoin/proton_hash
+https://github.com/phasecoin/phase_hash
 
 ## Step 1: Download hash list
 

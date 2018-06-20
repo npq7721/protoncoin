@@ -1,33 +1,33 @@
-Proton Core 2.0.0
+Phase Core 2.0.0
 ===============================
 
-`master:` [![Build Status](https://travis-ci.org/protoncoin/protoncoin.svg?branch=master)](https://travis-ci.org/protoncoin/protoncoin)
+`master:` [![Build Status](https://travis-ci.org/phasecoin/phasecoin.svg?branch=master)](https://travis-ci.org/phasecoin/phasecoin)
 
-https://protoncoin.io
+https://phasecoin.io
 
 
-What is Proton?
+What is Phase?
 ----------------
 
-ProtonCoin is a fully decentralised cryptocurrency built on the premise of providing anonymity, speed, fair mining by being ASIC-resistant and reliability by the usage of Masternodes.
+PhaseCoin is a fully decentralised cryptocurrency built on the premise of providing anonymity, speed, fair mining by being ASIC-resistant and reliability by the usage of Masternodes.
 
 
 For more information, as well as an immediately usable, binary version of
-the Proton Core software, see https://protoncoin.io.
+the Phase Core software, see https://phasecoin.io.
 
 
 License
 -------
 
-Proton Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+Phase Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
 information or see https://opensource.org/licenses/MIT.
 
 Development Process
 -------------------
 
 The `master` branch is meant to be stable. Development is normally done in separate branches.
-[Tags](https://github.com/protoncoin/protoncoin/tags) are created to indicate new official,
-stable release versions of Proton Core.
+[Tags](https://github.com/phasecoin/phasecoin/tags) are created to indicate new official,
+stable release versions of Phase Core.
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 

@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2017 The Dash Core developers
-// Copyright (c) 2017-2018 The Proton Core developers
+// Copyright (c) 2017-2018 The Phase Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,6 +15,7 @@
 #include "consensus/merkle.h"
 #include "consensus/validation.h"
 #include "hash.h"
+#include "hashSelection.h"
 #include "main.h"
 #include "net.h"
 #include "policy/policy.h"
@@ -37,7 +38,7 @@ using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// ProtonMiner
+// PhaseMiner
 //
 
 //
@@ -48,6 +49,10 @@ using namespace std;
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
+uint64_t nMiningTimeStart = 0;
+uint64_t nHashesPerSec = 0;
+uint64_t nHashesDone = 0;
+string hashSelections;
 
 class ScoreCompare
 {
@@ -336,7 +341,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 // Internal miner
 //
 
-// ***TODO*** ScanHash is not yet used in Proton
+// ***TODO*** ScanHash is not yet used in Phase
 //
 // ScanHash scans nonces looking for a hash with at least some zero bits.
 // The nonce is usually preserved between calls, but periodically or if the
@@ -396,9 +401,9 @@ static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainpar
 // ***TODO*** that part changed in bitcoin, we are using a mix with old one here for now
 void static BitcoinMiner(const CChainParams& chainparams)
 {
-    LogPrintf("ProtonMiner -- started\n");
+    LogPrintf("PhaseMiner -- started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("proton-miner");
+    RenameThread("phase-miner");
 
     unsigned int nExtraNonce = 0;
 
@@ -439,13 +444,14 @@ void static BitcoinMiner(const CChainParams& chainparams)
             auto_ptr<CBlockTemplate> pblocktemplate(CreateNewBlock(chainparams, coinbaseScript->reserveScript));
             if (!pblocktemplate.get())
             {
-                LogPrintf("ProtonMiner -- Keypool ran out, please call keypoolrefill before restarting the mining thread\n");
+                LogPrintf("PhaseMiner -- Keypool ran out, please call keypoolrefill before restarting the mining thread\n");
                 return;
             }
             CBlock *pblock = &pblocktemplate->block;
+            hashSelections = getHashSelectionsString(pblock->hashPrevBlock);
             IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
 
-            LogPrintf("ProtonMiner -- Running miner with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
+            LogPrintf("PhaseMiner -- Running miner with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
                 ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
             //
@@ -455,7 +461,6 @@ void static BitcoinMiner(const CChainParams& chainparams)
             arith_uint256 hashTarget = arith_uint256().SetCompact(pblock->nBits);
             while (true)
             {
-                unsigned int nHashesDone = 0;
 
                 uint256 hash;
                 while (true)
@@ -465,7 +470,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
                     {
                         // Found a solution
                         SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                        LogPrintf("ProtonMiner:\n  proof-of-work found\n  hash: %s\n  target: %s\n", hash.GetHex(), hashTarget.GetHex());
+                        LogPrintf("PhaseMiner:\n  proof-of-work found\n  hash: %s\n  target: %s\n", hash.GetHex(), hashTarget.GetHex());
                         ProcessBlockFound(pblock, chainparams);
                         SetThreadPriority(THREAD_PRIORITY_LOWEST);
                         coinbaseScript->KeepScript();
@@ -479,6 +484,9 @@ void static BitcoinMiner(const CChainParams& chainparams)
                     }
                     pblock->nNonce += 1;
                     nHashesDone += 1;
+                    if (nHashesDone % 500000 == 0) {   //Calculate hashing speed
+						nHashesPerSec = nHashesDone / (((GetTimeMicros() - nMiningTimeStart) / 1000000) + 1);
+					}
                     if ((pblock->nNonce & 0xFF) == 0)
                         break;
                 }
@@ -509,12 +517,12 @@ void static BitcoinMiner(const CChainParams& chainparams)
     }
     catch (const boost::thread_interrupted&)
     {
-        LogPrintf("ProtonMiner -- terminated\n");
+        LogPrintf("PhaseMiner -- terminated\n");
         throw;
     }
     catch (const std::runtime_error &e)
     {
-        LogPrintf("ProtonMiner -- runtime error: %s\n", e.what());
+        LogPrintf("PhaseMiner -- runtime error: %s\n", e.what());
         return;
     }
 }
@@ -537,6 +545,9 @@ void GenerateBitcoins(bool fGenerate, int nThreads, const CChainParams& chainpar
         return;
 
     minerThreads = new boost::thread_group();
+    nMiningTimeStart = GetTimeMicros();
+	nHashesDone = 0;
+	nHashesPerSec = 0;
     for (int i = 0; i < nThreads; i++)
         minerThreads->create_thread(boost::bind(&BitcoinMiner, boost::cref(chainparams)));
 }

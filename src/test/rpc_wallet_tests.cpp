@@ -9,7 +9,7 @@
 #include "main.h"
 #include "wallet/wallet.h"
 
-#include "test/test_proton.h"
+#include "test/test_phase.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/test/unit_test.hpp>
